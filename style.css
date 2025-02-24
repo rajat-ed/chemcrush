@@ -19,7 +19,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 360px;
+    width: 330px;
     box-sizing: border-box;
 }
 
@@ -52,10 +52,10 @@ body {
     background: linear-gradient(to bottom, #81d4fa, #4fc3f7);
     padding: 8px;
     border-radius: 10px;
-    width: 320px;
-    height: 320px;
-    grid-template-columns: repeat(8, 1fr);
-    grid-template-rows: repeat(8, 1fr);
+    width: 294px;
+    height: 294px;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(7, 1fr);
     box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.2);
     box-sizing: border-box;
     overflow: hidden;
@@ -220,3 +220,6 @@ body {
 .tile.Cl { background-color: #66bb6a; }
 .tile.K { background-color: #29b6f6; }
 .tile.Ca { background-color: #78909c; }
+.tile.Fe { background-color: #8d5524; }
+.tile.Cu { background-color: #d93f30; }
+.tile.Zn { background-color: #b0bec5; }
