@@ -1,367 +1,222 @@
-const GRID_SIZE = 8;
-
-// Single atoms only
-const ATOMS = [
-    'H', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Na', 'Mg',
-    'Al', 'Si', 'P', 'S', 'Cl', 'K', 'Ca'
-];
-
-// 50 Compounds with balanced equations
-const COMPOUNDS = {
-    'H2': { atoms: ['H', 'H'], equation: '2H → H₂', points: 50 },
-    'O2': { atoms: ['O', 'O'], equation: '2O → O₂', points: 50 },
-    'HCl': { atoms: ['H', 'Cl'], equation: 'H + Cl → HCl', points: 50 },
-    'NaCl': { atoms: ['Na', 'Cl'], equation: '2Na + Cl₂ → 2NaCl', points: 50 },
-    'HF': { atoms: ['H', 'F'], equation: 'H + F → HF', points: 50 },
-    'LiH': { atoms: ['Li', 'H'], equation: 'Li + H → LiH', points: 50 },
-    'BeO': { atoms: ['Be', 'O'], equation: '2Be + O₂ → 2BeO', points: 50 },
-    'CO': { atoms: ['C', 'O'], equation: '2C + O₂ → 2CO', points: 50 },
-    'NO': { atoms: ['N', 'O'], equation: 'N₂ + O₂ → 2NO', points: 50 },
-    'KCl': { atoms: ['K', 'Cl'], equation: '2K + Cl₂ → 2KCl', points: 50 },
-    'H2O': { atoms: ['H', 'H', 'O'], equation: '2H + O → H₂O', points: 100 },
-    'NH3': { atoms: ['N', 'H', 'H', 'H'], equation: 'N + 3H → NH₃', points: 150 },
-    'H2S': { atoms: ['H', 'H', 'S'], equation: '2H + S → H₂S', points: 100 },
-    'CO2': { atoms: ['C', 'O', 'O'], equation: 'C + O₂ → CO₂', points: 100 },
-    'SO2': { atoms: ['S', 'O', 'O'], equation: 'S + O → SO₂', points: 100 },
-    'SiO2': { atoms: ['Si', 'O', 'O'], equation: 'Si + O₂ → SiO₂', points: 100 },
-    'CS2': { atoms: ['C', 'S', 'S'], equation: 'C + 2S → CS₂', points: 100 },
-    'CaF2': { atoms: ['Ca', 'F', 'F'], equation: 'Ca + F₂ → CaF₂', points: 100 },
-    'BeF2': { atoms: ['Be', 'F', 'F'], equation: 'Be + F₂ → BeF₂', points: 100 },
-    'Li2O': { atoms: ['Li', 'Li', 'O'], equation: '4Li + O₂ → 2Li₂O', points: 100 },
-    'MgO': { atoms: ['Mg', 'O'], equation: '2Mg + O₂ → 2MgO', points: 50 },
-    'CH4': { atoms: ['C', 'H', 'H', 'H', 'H'], equation: 'C + 4H → CH₄', points: 150 },
-    'PH3': { atoms: ['P', 'H', 'H', 'H'], equation: 'P + 3H → PH₃', points: 150 },
-    'SiH4': { atoms: ['Si', 'H', 'H', 'H', 'H'], equation: 'Si + 4H → SiH₄', points: 150 },
-    'AlCl3': { atoms: ['Al', 'Cl', 'Cl', 'Cl'], equation: '2Al + 3Cl₂ → 2AlCl₃', points: 150 },
-    'BF3': { atoms: ['B', 'F', 'F', 'F'], equation: '2B + 3F₂ → 2BF₃', points: 150 },
-    'PF3': { atoms: ['P', 'F', 'F', 'F'], equation: '2P + 3F₂ → 2PF₃', points: 150 },
-    'SF2': { atoms: ['S', 'F', 'F'], equation: 'S + F₂ → SF₂', points: 100 },
-    'CaCl2': { atoms: ['Ca', 'Cl', 'Cl'], equation: 'Ca + Cl₂ → CaCl₂', points: 100 },
-    'H2O2': { atoms: ['H', 'H', 'O', 'O'], equation: '2H + O₂ → H₂O₂', points: 150 },
-    'C2H4': { atoms: ['C', 'C', 'H', 'H', 'H', 'H'], equation: '2C + 4H → C₂H₄', points: 200 },
-    'C2H2': { atoms: ['C', 'C', 'H', 'H'], equation: '2C + 2H → C₂H₂', points: 150 },
-    'SO3': { atoms: ['S', 'O', 'O', 'O'], equation: 'S + 1½O₂ → SO₃', points: 150 },
-    'SiF4': { atoms: ['Si', 'F', 'F', 'F', 'F'], equation: 'Si + 2F₂ → SiF₄', points: 200 },
-    'PCl3': { atoms: ['P', 'Cl', 'Cl', 'Cl'], equation: '2P + 3Cl₂ → 2PCl₃', points: 150 },
-    'SCl2': { atoms: ['S', 'Cl', 'Cl'], equation: 'S + Cl₂ → SCl₂', points: 100 },
-    'Na2O': { atoms: ['Na', 'Na', 'O'], equation: '4Na + O₂ → 2Na₂O', points: 100 },
-    'K2O': { atoms: ['K', 'K', 'O'], equation: '4K + O₂ → 2K₂O', points: 100 },
-    'MgCl2': { atoms: ['Mg', 'Cl', 'Cl'], equation: 'Mg + Cl₂ → MgCl₂', points: 100 },
-    'H2SO4': { atoms: ['H', 'H', 'S', 'O', 'O', 'O', 'O'], equation: '2H + S + 2O₂ → H₂SO₄', points: 250 },
-    'HNO3': { atoms: ['H', 'N', 'O', 'O', 'O'], equation: 'H + N + 1½O₂ → HNO₃', points: 200 },
-    'C3H8': { atoms: ['C', 'C', 'C', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H'], equation: '3C + 8H → C₃H₈', points: 300 },
-    'C2H5OH': { atoms: ['C', 'C', 'H', 'H', 'H', 'H', 'H', 'O'], equation: '2C + 6H + O → C₂H₅OH', points: 250 },
-    'CH3COOH': { atoms: ['C', 'H', 'H', 'H', 'C', 'O', 'O'], equation: '2C + 4H + 2O → CH₃COOH', points: 250 },
-    'H3PO4': { atoms: ['H', 'H', 'H', 'P', 'O', 'O', 'O', 'O'], equation: '3H + P + 2O₂ → H₃PO₄', points: 300 },
-    'P2O5': { atoms: ['P', 'P', 'O', 'O', 'O', 'O', 'O'], equation: '4P + 5O₂ → 2P₂O₅', points: 250 },
-    'Al2O3': { atoms: ['Al', 'Al', 'O', 'O', 'O'], equation: '4Al + 3O₂ → 2Al₂O₃', points: 200 },
-    'Na2CO3': { atoms: ['Na', 'Na', 'C', 'O', 'O', 'O'], equation: '2Na + C + 1½O₂ → Na₂CO₃', points: 200 },
-    'CaCO3': { atoms: ['Ca', 'C', 'O', 'O', 'O'], equation: 'Ca + C + 1½O₂ → CaCO₃', points: 200 },
-    'C6H12O6': { atoms: ['C', 'C', 'C', 'C', 'C', 'C', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'O', 'O', 'O', 'O', 'O', 'O'], equation: '6C + 12H + 6O₂ → C₆H₁₂O₆', points: 600 }
-};
-
-let board = [];
-let score = 0;
-let selectedTiles = [];
-let tileElements = [];
-let isDragging = false;
-let playerName = '';
-
-const gameBoard = document.getElementById('game-board');
-const scoreDisplay = document.getElementById('score');
-const equationDisplay = document.getElementById('equation');
-const namePrompt = document.getElementById('name-prompt');
-const gameContainer = document.getElementById('game-container');
-const startButton = document.getElementById('start-game');
-const playerInput = document.getElementById('player-name');
-
-// Start game with name prompt
-startButton.addEventListener('click', () => {
-    playerName = playerInput.value.trim() || 'Player';
-    namePrompt.style.display = 'none';
-    gameContainer.style.display = 'flex';
-    initBoard();
-});
-
-// Initialize board with all atoms
-function initBoard() {
-    board = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
-    tileElements = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
-    for (let row = 0; row < GRID_SIZE; row++) {
-        for (let col = 0; col < GRID_SIZE; col++) {
-            board[row][col] = randomAtom();
-            createTile(row, col);
-        }
-    }
-    addEventListeners();
-    checkAndReshuffle();
-    console.log('Board initialized:', board);
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #ff6f61, #ffd54f, #64b5f6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow: hidden;
 }
 
-// Random atom from full pool
-function randomAtom() {
-    return ATOMS[Math.floor(Math.random() * ATOMS.length)];
+#game-container {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 360px;
+    box-sizing: border-box;
 }
 
-// Create tile
-function createTile(row, col) {
-    const tile = document.createElement('div');
-    tile.className = 'tile ' + board[row][col];
-    tile.textContent = board[row][col];
-    tile.dataset.row = row;
-    tile.dataset.col = col;
-    tileElements[row][col] = tile;
-    gameBoard.appendChild(tile);
+#header {
+    background: linear-gradient(to right, #ff4081, #3f51b5);
+    color: white;
+    padding: 10px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    box-sizing: border-box;
 }
 
-// Update tile
-function updateTile(row, col) {
-    const tile = tileElements[row][col];
-    if (!board[row][col]) {
-        tile.className = 'tile';
-        tile.textContent = '';
-    } else {
-        tile.className = 'tile ' + board[row][col];
-        tile.textContent = board[row][col];
-    }
+#header h1 {
+    margin: 0;
+    font-size: 24px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-// Add event listeners
-function addEventListeners() {
-    gameBoard.addEventListener('mousedown', startDrag);
-    gameBoard.addEventListener('mousemove', drag);
-    gameBoard.addEventListener('mouseup', endDrag);
-    gameBoard.addEventListener('touchstart', startDrag, { passive: false });
-    gameBoard.addEventListener('touchmove', drag, { passive: false });
-    gameBoard.addEventListener('touchend', endDrag, { passive: false });
-    gameBoard.addEventListener('click', handleClick);
+#score {
+    font-size: 16px;
+    margin-top: 5px;
+    font-weight: bold;
 }
 
-// Start drag
-function startDrag(event) {
-    event.preventDefault();
-    const tile = getTileFromEvent(event);
-    if (!tile) return;
-    const { row, col } = tile.dataset;
-    isDragging = true;
-    selectedTiles = [{ row: parseInt(row), col: parseInt(col) }];
-    tile.classList.add('selected');
-    console.log('Drag started at:', row, col, board[row][col]);
+#game-board {
+    display: grid;
+    gap: 4px;
+    background: linear-gradient(to bottom, #81d4fa, #4fc3f7);
+    padding: 8px;
+    border-radius: 10px;
+    width: 320px;
+    height: 320px;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
-// Drag over tiles
-function drag(event) {
-    if (!isDragging) return;
-    event.preventDefault();
-    const tile = getTileFromEvent(event);
-    if (!tile) return;
-    const { row, col } = tile.dataset;
-    const pos = { row: parseInt(row), col: parseInt(col) };
-    const lastTile = selectedTiles[selectedTiles.length - 1];
-
-    if (!selectedTiles.some(t => t.row === pos.row && t.col === pos.col) && 
-        isAdjacent(lastTile.row, lastTile.col, pos.row, pos.col)) {
-        selectedTiles.push(pos);
-        tile.classList.add('selected');
-        console.log('Dragged to:', row, col, board[row][col], 'Selected:', selectedTiles.map(t => board[t.row][t.col]));
-        checkCombination();
-    }
+.tile {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0.1));
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    user-select: none;
+    box-sizing: border-box;
 }
 
-// End drag
-function endDrag(event) {
-    if (isDragging) {
-        isDragging = false;
-        console.log('Drag ended, checking combination');
-        checkCombination();
-    }
+.tile:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-// Handle click (with unselect)
-function handleClick(event) {
-    const tile = getTileFromEvent(event);
-    if (!tile) return;
-    const { row, col } = tile.dataset;
-    const pos = { row: parseInt(row), col: parseInt(col) };
-
-    if (selectedTiles.some(t => t.row === pos.row && t.col === pos.col)) {
-        tile.classList.remove('selected');
-        selectedTiles = selectedTiles.filter(t => t.row !== pos.row || t.col !== pos.col);
-        console.log('Unselected:', row, col);
-        return;
-    }
-
-    if (selectedTiles.length === 0 || selectedTiles.some(t => isAdjacent(t.row, t.col, pos.row, pos.col))) {
-        selectedTiles.push(pos);
-        tile.classList.add('selected');
-        console.log('Selected:', row, col, board[row][col], 'Selected:', selectedTiles.map(t => board[t.row][t.col]));
-        checkCombination();
-    } else {
-        clearSelection();
-        selectedTiles = [pos];
-        tile.classList.add('selected');
-        console.log('Reset and selected:', row, col);
-    }
+.tile.selected {
+    border: 2px solid #ffeb3b;
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-// Get tile from event
-function getTileFromEvent(event) {
-    const touch = event.touches ? event.touches[0] : event;
-    const target = document.elementFromPoint(touch.clientX, touch.clientY);
-    return target && target.classList.contains('tile') ? target : null;
+.tile.matched {
+    animation: burst 0.5s forwards;
 }
 
-// Check adjacency
-function isAdjacent(row1, col1, row2, col2) {
-    const dr = Math.abs(row1 - row2);
-    const dc = Math.abs(col1 - col2);
-    return (dr <= 1 && dc <= 1) && !(dr === 0 && dc === 0);
+@keyframes burst {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.7; }
+    100% { transform: scale(0); opacity: 0; }
 }
 
-// Check for compound
-function checkCombination() {
-    const selectedAtoms = selectedTiles.map(({ row, col }) => board[row][col]);
-    if (selectedAtoms.length < 2) return;
-
-    console.log('Checking combination:', selectedAtoms);
-
-    for (const [compound, { atoms, equation, points }] of Object.entries(COMPOUNDS)) {
-        if (selectedAtoms.length === atoms.length && arraysMatch(selectedAtoms, atoms)) {
-            console.log(`Match found: ${compound}, Points: ${points}`);
-            score += points;
-            showEquation(equation);
-            clearMatchedTiles();
-            dropTiles();
-            checkAndReshuffle();
-            updateScore();
-            return;
-        }
-    }
-    console.log('No match found');
+#equation {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    opacity: 0;
+    pointer-events: none;
+    animation: equationPop 1.5s forwards;
+    white-space: nowrap;
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-// Show equation popup
-function showEquation(equation) {
-    equationDisplay.textContent = equation;
-    equationDisplay.style.opacity = '0';
-    equationDisplay.style.animation = 'none';
-    setTimeout(() => {
-        equationDisplay.style.animation = 'equationPop 1.5s forwards';
-    }, 10);
+@keyframes equationPop {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
 }
 
-// Compare arrays (exact match, ignoring order)
-function arraysMatch(arr1, arr2) {
-    if (arr1.length !== arr2.length) return false;
-    const count1 = {};
-    const count2 = {};
-    for (const item of arr1) count1[item] = (count1[item] || 0) + 1;
-    for (const item of arr2) count2[item] = (count2[item] || 0) + 1;
-    for (const key in count1) {
-        if (count1[key] !== (count2[key] || 0)) {
-            console.log(`Mismatch: ${key} - Selected: ${count1[key]}, Required: ${count2[key] || 0}`);
-            return false;
-        }
-    }
-    return true;
+#footer {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+    font-weight: bold;
 }
 
-// Clear matched tiles
-function clearMatchedTiles() {
-    selectedTiles.forEach(({ row, col }) => {
-        const tile = tileElements[row][col];
-        tile.classList.remove('selected');
-        tile.classList.add('matched');
-        board[row][col] = null;
-        setTimeout(() => updateTile(row, col), 500);
-    });
-    selectedTiles = [];
-    console.log('Tiles cleared');
+#name-prompt {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 90%;
+    max-width: 300px;
 }
 
-// Clear selection
-function clearSelection() {
-    selectedTiles.forEach(({ row, col }) => tileElements[row][col].classList.remove('selected'));
-    selectedTiles = [];
-    console.log('Selection cleared');
+#name-prompt h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
 }
 
-// Drop and refill
-function dropTiles() {
-    for (let col = 0; col < GRID_SIZE; col++) {
-        let emptyRows = [];
-        for (let row = GRID_SIZE - 1; row >= 0; row--) {
-            if (!board[row][col]) {
-                emptyRows.push(row);
-            } else if (emptyRows.length > 0) {
-                const newRow = emptyRows.shift();
-                board[newRow][col] = board[row][col];
-                board[row][col] = null;
-                emptyRows.push(row);
-                updateTile(newRow, col);
-                updateTile(row, col);
-            }
-        }
-        emptyRows.forEach(row => {
-            board[row][col] = randomAtom();
-            updateTile(row, col);
-        });
-    }
-    console.log('Tiles dropped');
+#player-name {
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #ff4081;
+    border-radius: 5px;
+    outline: none;
 }
 
-// Check if any compounds are possible
-function canFormCompound() {
-    for (let row = 0; row < GRID_SIZE; row++) {
-        for (let col = 0; col < GRID_SIZE; col++) {
-            if (!board[row][col]) continue;
-            const visited = new Set();
-            const queue = [{ row, col, path: [board[row][col]] }];
-            while (queue.length > 0) {
-                const { row: r, col: c, path } = queue.shift();
-                const key = `${r},${c}`;
-                if (visited.has(key)) continue;
-                visited.add(key);
-
-                for (const [compound, { atoms }] of Object.entries(COMPOUNDS)) {
-                    if (arraysMatch(path, atoms)) {
-                        console.log('Possible compound found:', compound);
-                        return true;
-                    }
-                }
-
-                for (let dr = -1; dr <= 1; dr++) {
-                    for (let dc = -1; dc <= 1; dc++) {
-                        if (dr === 0 && dc === 0) continue;
-                        const nr = r + dr;
-                        const nc = c + dc;
-                        if (nr < 0 || nr >= GRID_SIZE || nc < 0 || nc >= GRID_SIZE || visited.has(`${nr},${nc}`)) continue;
-                        if (!board[nr][nc]) continue;
-                        queue.push({ row: nr, col: nc, path: [...path, board[nr][nc]] });
-                    }
-                }
-            }
-        }
-    }
-    console.log('No compounds possible');
-    return false;
+#start-game {
+    padding: 12px 24px;
+    font-size: 16px;
+    background: linear-gradient(45deg, #ff4081, #3f51b5);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-// Reshuffle if no compounds possible
-function checkAndReshuffle() {
-    if (!canFormCompound()) {
-        console.log('Reshuffling board');
-        for (let row = 0; row < GRID_SIZE; row++) {
-            for (let col = 0; col < GRID_SIZE; col++) {
-                board[row][col] = randomAtom();
-                updateTile(row, col);
-            }
-        }
-        if (!canFormCompound()) checkAndReshuffle();
-    }
+#start-game::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.5s ease;
 }
 
-// Update score
-function updateScore() {
-    scoreDisplay.textContent = `Score: ${score} - ${playerName}`;
+#start-game:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), inset 0 1px 5px rgba(255, 255, 255, 0.5);
+    background: linear-gradient(45deg, #ff6091, #5f71d5);
 }
+
+#start-game:hover::before {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#start-game:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Atom Colors */
+.tile.H { background-color: #ff6f61; }
+.tile.Li { background-color: #ab47bc; }
+.tile.Be { background-color: #42a5f5; }
+.tile.B { background-color: #1976d2; }
+.tile.C { background-color: #616161; }
+.tile.N { background-color: #0288d1; }
+.tile.O { background-color: #ef5350; }
+.tile.F { background-color: #ec407a; }
+.tile.Na { background-color: #ff9800; }
+.tile.Mg { background-color: #ff5722; }
+.tile.Al { background-color: #9575cd; }
+.tile.Si { background-color: #7e57c2; }
+.tile.P { background-color: #039be5; }
+.tile.S { background-color: #f9a825; }
+.tile.Cl { background-color: #66bb6a; }
+.tile.K { background-color: #29b6f6; }
+.tile.Ca { background-color: #78909c; }
