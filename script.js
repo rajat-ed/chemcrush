@@ -60,33 +60,16 @@ const COMPOUNDS = {
     'C6H12O6': { atoms: ['C', 'C', 'C', 'C', 'C', 'C', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'O', 'O', 'O', 'O', 'O', 'O'], equation: '6C + 12H + 6O₂ → C₆H₁₂O₆', points: 600 }
 };
 
-// Levels with goals (10 levels, easy to hard)
-const LEVELS = [
-    { level: 1, goal: { compound: 'H2', count: 3 }, atoms: ['H', 'O', 'Na', 'Cl'], description: 'Make 3 H₂' },
-    { level: 2, goal: { compound: 'NaCl', count: 3 }, atoms: ['H', 'Na', 'Cl'], description: 'Make 3 NaCl' },
-    { level: 3, goal: { compound: 'H2O', count: 2 }, atoms: ['H', 'O', 'Cl'], description: 'Make 2 H₂O' },
-    { level: 4, goal: { compound: 'CO2', count: 2 }, atoms: ['C', 'O', 'H'], description: 'Make 2 CO₂' },
-    { level: 5, goal: { compound: 'NH3', count: 2 }, atoms: ['N', 'H', 'O'], description: 'Make 2 NH₃' },
-    { level: 6, goal: { compound: 'CH4', count: 1 }, atoms: ['C', 'H', 'O'], description: 'Make 1 CH₄' },
-    { level: 7, goal: { compound: 'H2SO4', count: 1 }, atoms: ['H', 'S', 'O'], description: 'Make 1 H₂SO₄' },
-    { level: 8, goal: { compound: 'C2H5OH', count: 1 }, atoms: ['C', 'H', 'O'], description: 'Make 1 C₂H₅OH' },
-    { level: 9, goal: { compound: 'C3H8', count: 1 }, atoms: ['C', 'H'], description: 'Make 1 C₃H₈' },
-    { level: 10, goal: { compound: 'C6H12O6', count: 1 }, atoms: ['C', 'H', 'O'], description: 'Make 1 C₆H₁₂O₆' }
-];
-
 let board = [];
 let score = 0;
 let selectedTiles = [];
 let tileElements = [];
 let isDragging = false;
 let playerName = '';
-let currentLevel = 0;
-let levelProgress = {};
 
 const gameBoard = document.getElementById('game-board');
 const scoreDisplay = document.getElementById('score');
 const equationDisplay = document.getElementById('equation');
-const levelInfo = document.getElementById('level-info');
 const namePrompt = document.getElementById('name-prompt');
 const gameContainer = document.getElementById('game-container');
 const startButton = document.getElementById('start-game');
@@ -97,34 +80,28 @@ startButton.addEventListener('click', () => {
     playerName = playerInput.value.trim() || 'Player';
     namePrompt.style.display = 'none';
     gameContainer.style.display = 'flex';
-    startLevel(currentLevel);
+    initBoard();
+    updateScore();
 });
 
-// Initialize level
-function startLevel(level) {
-    levelProgress = { compound: LEVELS[level].goal.compound, count: 0, target: LEVELS[level].goal.count };
-    levelInfo.textContent = `Level: ${level + 1} - Goal: ${LEVELS[level].description} (${levelProgress.count}/${levelProgress.target})`;
-    initBoard(LEVELS[level].atoms);
-}
-
-// Initialize board with level-specific atoms
-function initBoard(levelAtoms) {
+// Initialize board with all atoms
+function initBoard() {
     board = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
     tileElements = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
     for (let row = 0; row < GRID_SIZE; row++) {
         for (let col = 0; col < GRID_SIZE; col++) {
-            board[row][col] = randomAtom(levelAtoms);
+            board[row][col] = randomAtom();
             createTile(row, col);
         }
     }
     addEventListeners();
     checkAndReshuffle();
-    console.log('Board initialized for level', currentLevel + 1, ':', board);
+    console.log('Board initialized:', board);
 }
 
-// Random atom from level-specific pool
-function randomAtom(levelAtoms) {
-    return levelAtoms[Math.floor(Math.random() * levelAtoms.length)];
+// Random atom from full pool
+function randomAtom() {
+    return ATOMS[Math.floor(Math.random() * ATOMS.length)];
 }
 
 // Create tile
@@ -254,14 +231,15 @@ function checkCombination() {
             console.log(`Match found: ${compound}, Points: ${points}`);
             score += points;
             showEquation(equation);
-            levelProgress.count += (compound === levelProgress.compound) ? 1 : 0;
             clearMatchedTiles();
             dropTiles();
-            checkLevelProgress();
+            checkAndReshuffle();
+            updateScore();
             return;
         }
     }
     console.log('No match found');
+    clearSelection(); // Clear selection if no match
 }
 
 // Show equation popup
@@ -272,27 +250,6 @@ function showEquation(equation) {
     setTimeout(() => {
         equationDisplay.style.animation = 'equationPop 1.5s forwards';
     }, 10);
-}
-
-// Check level progress
-function checkLevelProgress() {
-    if (levelProgress.count >= levelProgress.target) {
-        currentLevel++;
-        if (currentLevel < LEVELS.length) {
-            console.log(`Level ${currentLevel} completed! Moving to level ${currentLevel + 1}`);
-            startLevel(currentLevel);
-        } else {
-            console.log('Game completed!');
-            alert(`Congrats, ${playerName}! You’ve crushed all levels with a score of ${score}!`);
-            currentLevel = 0;
-            score = 0;
-            startLevel(currentLevel);
-        }
-    } else {
-        levelInfo.textContent = `Level: ${currentLevel + 1} - Goal: ${LEVELS[currentLevel].description} (${levelProgress.count}/${levelProgress.target})`;
-        checkAndReshuffle();
-    }
-    updateScore();
 }
 
 // Compare arrays (exact match, ignoring order)
@@ -348,7 +305,7 @@ function dropTiles() {
             }
         }
         emptyRows.forEach(row => {
-            board[row][col] = randomAtom(LEVELS[currentLevel].atoms);
+            board[row][col] = randomAtom();
             updateTile(row, col);
         });
     }
@@ -398,7 +355,7 @@ function checkAndReshuffle() {
         console.log('Reshuffling board');
         for (let row = 0; row < GRID_SIZE; row++) {
             for (let col = 0; col < GRID_SIZE; col++) {
-                board[row][col] = randomAtom(LEVELS[currentLevel].atoms);
+                board[row][col] = randomAtom();
                 updateTile(row, col);
             }
         }
