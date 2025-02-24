@@ -1,9 +1,11 @@
-const GRID_SIZE = 7;
+const GRID_ROWS = 16;
+const GRID_COLS = 6;
 
-// Mixed metals and non-metals
+// Elements from atomic number 1-30 (H to Zn)
 const ATOMS = [
-    'H', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Na', 'Mg',
-    'Al', 'Si', 'P', 'S', 'Cl', 'K', 'Ca', 'Fe', 'Cu', 'Zn'
+    'H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne',
+    'Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar', 'K', 'Ca',
+    'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn'
 ];
 
 // 100+ Compounds with balanced equations
@@ -13,6 +15,9 @@ const COMPOUNDS = {
     'N2': { atoms: ['N', 'N'], equation: '2N → N₂', points: 50 },
     'F2': { atoms: ['F', 'F'], equation: '2F → F₂', points: 50 },
     'Cl2': { atoms: ['Cl', 'Cl'], equation: '2Cl → Cl₂', points: 50 },
+    'He': { atoms: ['He'], equation: 'He → He', points: 25 }, // Noble gas, simple
+    'Ne': { atoms: ['Ne'], equation: 'Ne → Ne', points: 25 },
+    'Ar': { atoms: ['Ar'], equation: 'Ar → Ar', points: 25 },
     'HCl': { atoms: ['H', 'Cl'], equation: 'H + Cl → HCl', points: 50 },
     'NaCl': { atoms: ['Na', 'Cl'], equation: '2Na + Cl₂ → 2NaCl', points: 50 },
     'HF': { atoms: ['H', 'F'], equation: 'H + F → HF', points: 50 },
@@ -101,7 +106,14 @@ const COMPOUNDS = {
     'ZnCO3': { atoms: ['Zn', 'C', 'O', 'O', 'O'], equation: 'Zn + C + 1½O₂ → ZnCO₃', points: 200 },
     'C4H10': { atoms: ['C', 'C', 'C', 'C', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H'], equation: '4C + 10H → C₄H₁₀', points: 350 },
     'CH3OCH3': { atoms: ['C', 'H', 'H', 'H', 'O', 'C', 'H', 'H', 'H'], equation: '2C + 6H + O → CH₃OCH₃', points: 300 },
-    'C6H6': { atoms: ['C', 'C', 'C', 'C', 'C', 'C', 'H', 'H', 'H', 'H', 'H', 'H'], equation: '6C + 6H → C₆H₆', points: 350 }
+    'C6H6': { atoms: ['C', 'C', 'C', 'C', 'C', 'C', 'H', 'H', 'H', 'H', 'H', 'H'], equation: '6C + 6H → C₆H₆', points: 350 },
+    'TiO2': { atoms: ['Ti', 'O', 'O'], equation: 'Ti + O₂ → TiO₂', points: 100 },
+    'Cr2O3': { atoms: ['Cr', 'Cr', 'O', 'O', 'O'], equation: '4Cr + 3O₂ → 2Cr₂O₃', points: 200 },
+    'MnO2': { atoms: ['Mn', 'O', 'O'], equation: 'Mn + O₂ → MnO₂', points: 100 },
+    'NiCl2': { atoms: ['Ni', 'Cl', 'Cl'], equation: 'Ni + Cl₂ → NiCl₂', points: 100 },
+    'CoF2': { atoms: ['Co', 'F', 'F'], equation: 'Co + F₂ → CoF₂', points: 100 },
+    'Sc2O3': { atoms: ['Sc', 'Sc', 'O', 'O', 'O'], equation: '4Sc + 3O₂ → 2Sc₂O₃', points: 200 },
+    'V2O5': { atoms: ['V', 'V', 'O', 'O', 'O', 'O', 'O'], equation: '4V + 5O₂ → 2V₂O₅', points: 250 }
 };
 
 let board = [];
@@ -130,10 +142,10 @@ startButton.addEventListener('click', () => {
 
 // Initialize board with all atoms
 function initBoard() {
-    board = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
-    tileElements = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
-    for (let row = 0; row < GRID_SIZE; row++) {
-        for (let col = 0; col < GRID_SIZE; col++) {
+    board = Array(GRID_ROWS).fill().map(() => Array(GRID_COLS).fill(null));
+    tileElements = Array(GRID_ROWS).fill().map(() => Array(GRID_COLS).fill(null));
+    for (let row = 0; row < GRID_ROWS; row++) {
+        for (let col = 0; col < GRID_COLS; col++) {
             board[row][col] = randomAtom();
             createTile(row, col);
         }
@@ -222,7 +234,7 @@ function endDrag(event) {
     }
 }
 
-// Handle click (with unselect)
+// Handle click (with unselect by retapping)
 function handleClick(event) {
     const tile = getTileFromEvent(event);
     if (!tile) return;
@@ -266,7 +278,7 @@ function isAdjacent(row1, col1, row2, col2) {
 // Check for compound
 function checkCombination() {
     const selectedAtoms = selectedTiles.map(({ row, col }) => board[row][col]);
-    if (selectedAtoms.length < 2) return;
+    if (selectedAtoms.length < 1) return; // Allow noble gases (1 atom)
 
     console.log('Checking combination:', selectedAtoms);
 
@@ -334,9 +346,9 @@ function clearSelection() {
 
 // Drop and refill
 function dropTiles() {
-    for (let col = 0; col < GRID_SIZE; col++) {
+    for (let col = 0; col < GRID_COLS; col++) {
         let emptyRows = [];
-        for (let row = GRID_SIZE - 1; row >= 0; row--) {
+        for (let row = GRID_ROWS - 1; row >= 0; row--) {
             if (!board[row][col]) {
                 emptyRows.push(row);
             } else if (emptyRows.length > 0) {
@@ -358,8 +370,8 @@ function dropTiles() {
 
 // Check if any compounds are possible
 function canFormCompound() {
-    for (let row = 0; row < GRID_SIZE; row++) {
-        for (let col = 0; col < GRID_SIZE; col++) {
+    for (let row = 0; row < GRID_ROWS; row++) {
+        for (let col = 0; col < GRID_COLS; col++) {
             if (!board[row][col]) continue;
             const visited = new Set();
             const queue = [{ row, col, path: [board[row][col]] }];
@@ -381,7 +393,7 @@ function canFormCompound() {
                         if (dr === 0 && dc === 0) continue;
                         const nr = r + dr;
                         const nc = c + dc;
-                        if (nr < 0 || nr >= GRID_SIZE || nc < 0 || nc >= GRID_SIZE || visited.has(`${nr},${nc}`)) continue;
+                        if (nr < 0 || nr >= GRID_ROWS || nc < 0 || nc >= GRID_COLS || visited.has(`${nr},${nc}`)) continue;
                         if (!board[nr][nc]) continue;
                         queue.push({ row: nr, col: nc, path: [...path, board[nr][nc]] });
                     }
@@ -397,8 +409,8 @@ function canFormCompound() {
 function checkAndReshuffle() {
     if (!canFormCompound()) {
         console.log('Reshuffling board');
-        for (let row = 0; row < GRID_SIZE; row++) {
-            for (let col = 0; col < GRID_SIZE; col++) {
+        for (let row = 0; row < GRID_ROWS; row++) {
+            for (let col = 0; col < GRID_COLS; col++) {
                 board[row][col] = randomAtom();
                 updateTile(row, col);
             }
