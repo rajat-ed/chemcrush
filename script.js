@@ -1,23 +1,13 @@
-const GRID_ROWS = 16;
-const GRID_COLS = 6;
+const GRID_ROWS = 9;
+const GRID_COLS = 9;
 
-// Elements from atomic number 1-30 (H to Zn)
-const ATOMS = [
-    'H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne',
-    'Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar', 'K', 'Ca',
-    'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn'
-];
-
-// 100+ Compounds with balanced equations
+// 100 Compounds with balanced equations
 const COMPOUNDS = {
     'H2': { atoms: ['H', 'H'], equation: '2H → H₂', points: 50 },
     'O2': { atoms: ['O', 'O'], equation: '2O → O₂', points: 50 },
     'N2': { atoms: ['N', 'N'], equation: '2N → N₂', points: 50 },
     'F2': { atoms: ['F', 'F'], equation: '2F → F₂', points: 50 },
     'Cl2': { atoms: ['Cl', 'Cl'], equation: '2Cl → Cl₂', points: 50 },
-    'He': { atoms: ['He'], equation: 'He → He', points: 25 }, // Noble gas, simple
-    'Ne': { atoms: ['Ne'], equation: 'Ne → Ne', points: 25 },
-    'Ar': { atoms: ['Ar'], equation: 'Ar → Ar', points: 25 },
     'HCl': { atoms: ['H', 'Cl'], equation: 'H + Cl → HCl', points: 50 },
     'NaCl': { atoms: ['Na', 'Cl'], equation: '2Na + Cl₂ → 2NaCl', points: 50 },
     'HF': { atoms: ['H', 'F'], equation: 'H + F → HF', points: 50 },
@@ -34,7 +24,6 @@ const COMPOUNDS = {
     'CaF2': { atoms: ['Ca', 'F', 'F'], equation: 'Ca + F₂ → CaF₂', points: 100 },
     'FeO': { atoms: ['Fe', 'O'], equation: '2Fe + O₂ → 2FeO', points: 50 },
     'CuCl': { atoms: ['Cu', 'Cl'], equation: '2Cu + Cl₂ → 2CuCl', points: 50 },
-    'ZnO': { atoms: ['Zn', 'O'], equation: '2Zn + O₂ → 2ZnO', points: 50 },
     'H2O': { atoms: ['H', 'H', 'O'], equation: '2H + O → H₂O', points: 100 },
     'NH3': { atoms: ['N', 'H', 'H', 'H'], equation: 'N + 3H → NH₃', points: 150 },
     'H2S': { atoms: ['H', 'H', 'S'], equation: '2H + S → H₂S', points: 100 },
@@ -52,7 +41,6 @@ const COMPOUNDS = {
     'CaCl2': { atoms: ['Ca', 'Cl', 'Cl'], equation: 'Ca + Cl₂ → CaCl₂', points: 100 },
     'FeCl2': { atoms: ['Fe', 'Cl', 'Cl'], equation: 'Fe + Cl₂ → FeCl₂', points: 100 },
     'CuO': { atoms: ['Cu', 'O'], equation: '2Cu + O₂ → 2CuO', points: 50 },
-    'ZnCl2': { atoms: ['Zn', 'Cl', 'Cl'], equation: 'Zn + Cl₂ → ZnCl₂', points: 100 },
     'H2O2': { atoms: ['H', 'H', 'O', 'O'], equation: '2H + O₂ → H₂O₂', points: 150 },
     'C2H4': { atoms: ['C', 'C', 'H', 'H', 'H', 'H'], equation: '2C + 4H → C₂H₄', points: 200 },
     'C2H2': { atoms: ['C', 'C', 'H', 'H'], equation: '2C + 2H → C₂H₂', points: 150 },
@@ -63,7 +51,6 @@ const COMPOUNDS = {
     'MgCl2': { atoms: ['Mg', 'Cl', 'Cl'], equation: 'Mg + Cl₂ → MgCl₂', points: 100 },
     'Fe2O3': { atoms: ['Fe', 'Fe', 'O', 'O', 'O'], equation: '4Fe + 3O₂ → 2Fe₂O₃', points: 200 },
     'CuCl2': { atoms: ['Cu', 'Cl', 'Cl'], equation: 'Cu + Cl₂ → CuCl₂', points: 100 },
-    'ZnF2': { atoms: ['Zn', 'F', 'F'], equation: 'Zn + F₂ → ZnF₂', points: 100 },
     'H2SO4': { atoms: ['H', 'H', 'S', 'O', 'O', 'O', 'O'], equation: '2H + S + 2O₂ → H₂SO₄', points: 250 },
     'HNO3': { atoms: ['H', 'N', 'O', 'O', 'O'], equation: 'H + N + 1½O₂ → HNO₃', points: 200 },
     'C3H8': { atoms: ['C', 'C', 'C', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H'], equation: '3C + 8H → C₃H₈', points: 300 },
@@ -86,7 +73,6 @@ const COMPOUNDS = {
     'SiCl4': { atoms: ['Si', 'Cl', 'Cl', 'Cl', 'Cl'], equation: 'Si + 2Cl₂ → SiCl₄', points: 200 },
     'FeS': { atoms: ['Fe', 'S'], equation: 'Fe + S → FeS', points: 50 },
     'Cu2O': { atoms: ['Cu', 'Cu', 'O'], equation: '4Cu + O₂ → 2Cu₂O', points: 100 },
-    'ZnS': { atoms: ['Zn', 'S'], equation: 'Zn + S → ZnS', points: 50 },
     'CH3Cl': { atoms: ['C', 'H', 'H', 'H', 'Cl'], equation: 'C + 3H + Cl → CH₃Cl', points: 150 },
     'C2H6': { atoms: ['C', 'C', 'H', 'H', 'H', 'H', 'H', 'H'], equation: '2C + 6H → C₂H₆', points: 250 },
     'CH2O': { atoms: ['C', 'H', 'H', 'O'], equation: 'C + 2H + O → CH₂O', points: 150 },
@@ -97,24 +83,25 @@ const COMPOUNDS = {
     'Ca(OH)2': { atoms: ['Ca', 'O', 'H', 'O', 'H'], equation: 'Ca + 2H + O₂ → Ca(OH)₂', points: 200 },
     'Fe(OH)2': { atoms: ['Fe', 'O', 'H', 'O', 'H'], equation: 'Fe + 2H + O₂ → Fe(OH)₂', points: 200 },
     'CuSO4': { atoms: ['Cu', 'S', 'O', 'O', 'O', 'O'], equation: 'Cu + S + 2O₂ → CuSO₄', points: 250 },
-    'Zn(NO3)2': { atoms: ['Zn', 'N', 'O', 'O', 'O', 'N', 'O', 'O', 'O'], equation: 'Zn + 2N + 3O₂ → Zn(NO₃)₂', points: 350 },
     'Al(OH)3': { atoms: ['Al', 'O', 'H', 'O', 'H', 'O', 'H'], equation: '2Al + 6H + 3O₂ → 2Al(OH)₃', points: 250 },
     'SiO': { atoms: ['Si', 'O'], equation: '2Si + O₂ → 2SiO', points: 50 },
     'P2S5': { atoms: ['P', 'P', 'S', 'S', 'S', 'S', 'S'], equation: '2P + 5S → P₂S₅', points: 300 },
     'FeCl3': { atoms: ['Fe', 'Cl', 'Cl', 'Cl'], equation: '2Fe + 3Cl₂ → 2FeCl₃', points: 150 },
     'CuS': { atoms: ['Cu', 'S'], equation: 'Cu + S → CuS', points: 50 },
-    'ZnCO3': { atoms: ['Zn', 'C', 'O', 'O', 'O'], equation: 'Zn + C + 1½O₂ → ZnCO₃', points: 200 },
     'C4H10': { atoms: ['C', 'C', 'C', 'C', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H'], equation: '4C + 10H → C₄H₁₀', points: 350 },
     'CH3OCH3': { atoms: ['C', 'H', 'H', 'H', 'O', 'C', 'H', 'H', 'H'], equation: '2C + 6H + O → CH₃OCH₃', points: 300 },
     'C6H6': { atoms: ['C', 'C', 'C', 'C', 'C', 'C', 'H', 'H', 'H', 'H', 'H', 'H'], equation: '6C + 6H → C₆H₆', points: 350 },
     'TiO2': { atoms: ['Ti', 'O', 'O'], equation: 'Ti + O₂ → TiO₂', points: 100 },
-    'Cr2O3': { atoms: ['Cr', 'Cr', 'O', 'O', 'O'], equation: '4Cr + 3O₂ → 2Cr₂O₃', points: 200 },
-    'MnO2': { atoms: ['Mn', 'O', 'O'], equation: 'Mn + O₂ → MnO₂', points: 100 },
-    'NiCl2': { atoms: ['Ni', 'Cl', 'Cl'], equation: 'Ni + Cl₂ → NiCl₂', points: 100 },
-    'CoF2': { atoms: ['Co', 'F', 'F'], equation: 'Co + F₂ → CoF₂', points: 100 },
-    'Sc2O3': { atoms: ['Sc', 'Sc', 'O', 'O', 'O'], equation: '4Sc + 3O₂ → 2Sc₂O₃', points: 200 },
-    'V2O5': { atoms: ['V', 'V', 'O', 'O', 'O', 'O', 'O'], equation: '4V + 5O₂ → 2V₂O₅', points: 250 }
+    'LiCl': { atoms: ['Li', 'Cl'], equation: '2Li + Cl₂ → 2LiCl', points: 50 },
+    'NaF': { atoms: ['Na', 'F'], equation: '2Na + F₂ → 2NaF', points: 50 },
+    'KF': { atoms: ['K', 'F'], equation: '2K + F₂ → 2KF', points: 50 },
+    'MgF2': { atoms: ['Mg', 'F', 'F'], equation: 'Mg + F₂ → MgF₂', points: 100 },
+    'AlCl3': { atoms: ['Al', 'Cl', 'Cl', 'Cl'], equation: '2Al + 3Cl₂ → 2AlCl₃', points: 150 }
 };
+
+// Extract unique atoms from compounds
+const ATOMS = Array.from(new Set(Object.values(COMPOUNDS).flatMap(c => c.atoms))).sort();
+// Resulting ATOMS: ['H', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'K', 'Ca', 'Ti', 'Fe', 'Cu']
 
 let board = [];
 let score = 0;
@@ -155,7 +142,7 @@ function initBoard() {
     console.log('Board initialized:', board);
 }
 
-// Random atom from full pool
+// Random atom from pool
 function randomAtom() {
     return ATOMS[Math.floor(Math.random() * ATOMS.length)];
 }
@@ -278,7 +265,7 @@ function isAdjacent(row1, col1, row2, col2) {
 // Check for compound
 function checkCombination() {
     const selectedAtoms = selectedTiles.map(({ row, col }) => board[row][col]);
-    if (selectedAtoms.length < 1) return; // Allow noble gases (1 atom)
+    if (selectedAtoms.length < 2) return;
 
     console.log('Checking combination:', selectedAtoms);
 
