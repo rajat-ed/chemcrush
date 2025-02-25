@@ -1,257 +1,262 @@
-html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    overflow: hidden;
-    background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
-    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+const GRID_SIZE = 9;
+let grid = document.getElementById('grid');
+let scoreDisplay = document.getElementById('score');
+let moleculeDisplay = document.getElementById('molecule-display');
+let startScreen = document.getElementById('start-screen');
+let gameContainer = document.getElementById('game-container');
+let startButton = document.getElementById('start-button');
+let shareButton = document.getElementById('share-score');
+let score = 0;
+let compoundsCreated = 0;
+let cells = [];
+let selectedCells = [];
+let isDragging = false;
+let playerName = '';
+
+const atomTypes = ['H', 'O', 'N', 'F', 'Cl', 'Br', 'I', 'C', 'S', 'P', 'Na', 'K', 'Ca', 'Mg', 'Al', 'Si'];
+
+const molecules = {
+    'H2': 'Hydrogen Gas', 'O2': 'Oxygen Gas', 'N2': 'Nitrogen Gas', 'F2': 'Fluorine Gas', 'Cl2': 'Chlorine Gas',
+    'Br2': 'Bromine Gas', 'I2': 'Iodine Gas', 'CO': 'Carbon Monoxide', 'CO2': 'Carbon Dioxide', 'NO': 'Nitric Oxide',
+    'H2O': 'Water', 'HCl': 'Hydrochloric Acid', 'H2SO4': 'Sulfuric Acid', 'HNO3': 'Nitric Acid', 'H3PO4': 'Phosphoric Acid',
+    'H2CO3': 'Carbonic Acid', 'HF': 'Hydrofluoric Acid', 'HBr': 'Hydrobromic Acid', 'HI': 'Hydroiodic Acid', 'HClO4': 'Perchloric Acid',
+    'CH4': 'Methane', 'C2H6': 'Ethane', 'C2H4': 'Ethene', 'C2H2': 'Ethyne', 'C3H8': 'Propane',
+    'C3H6': 'Propene', 'C3H4': 'Propyne', 'C4H10': 'Butane', 'C4H8': 'Butene', 'C4H6': 'Butyne',
+    'NaOH': 'Sodium Hydroxide', 'NaCl': 'Sodium Chloride', 'KCl': 'Potassium Chloride', 'CaCO3': 'Calcium Carbonate',
+    'NaHCO3': 'Sodium Bicarbonate', 'CaSO4': 'Calcium Sulfate', 'MgSO4': 'Magnesium Sulfate', 'NaNO3': 'Sodium Nitrate',
+    'KNO3': 'Potassium Nitrate', 'NH4Cl': 'Ammonium Chloride', 'AlCl3': 'Aluminum Chloride', 'SO2': 'Sulfur Dioxide',
+    'SO3': 'Sulfur Trioxide', 'OCS': 'Carbonyl Sulfide', 'N2O3': 'Dinitrogen Trioxide', 'NCl3': 'Nitrogen Trichloride',
+    'PCl3': 'Phosphorus Trichloride', 'PCl5': 'Phosphorus Pentachloride', 'CaO': 'Calcium Oxide', 'SiCl4': 'Silicon Tetrachloride',
+    'H2S': 'Hydrogen Sulfide', 'NO2': 'Nitrogen Dioxide', 'N2O': 'Nitrous Oxide', 'CS2': 'Carbon Disulfide',
+    'CH3OH': 'Methanol', 'C2H5OH': 'Ethanol', 'CH3Cl': 'Chloromethane', 'C2H5Cl': 'Chloroethane', 'CH3Br': 'Bromomethane',
+    'CH3I': 'Iodomethane', 'C5H12': 'Pentane', 'C5H10': 'Pentene', 'C5H8': 'Pentyne', 'HCOOH': 'Formic Acid',
+    'CH3COOH': 'Acetic Acid', 'H2SiO3': 'Silicic Acid', 'HNO2': 'Nitrous Acid', 'H2SO3': 'Sulfurous Acid',
+    'NaF': 'Sodium Fluoride', 'NaBr': 'Sodium Bromide', 'NaI': 'Sodium Iodide', 'KF': 'Potassium Fluoride',
+    'KBr': 'Potassium Bromide', 'KI': 'Potassium Iodide', 'CaCl2': 'Calcium Chloride', 'CaF2': 'Calcium Fluoride',
+    'MgO': 'Magnesium Oxide', 'MgCl2': 'Magnesium Chloride', 'Al2O3': 'Aluminum Oxide', 'AlF3': 'Aluminum Fluoride',
+    'SiO2': 'Silicon Dioxide', 'SiF4': 'Silicon Tetrafluoride', 'PF3': 'Phosphorus Trifluoride', 'PF5': 'Phosphorus Pentafluoride',
+    'SF2': 'Sulfur Difluoride', 'SF4': 'Sulfur Tetrafluoride', 'SF6': 'Sulfur Hexafluoride', 'Na2O': 'Sodium Oxide',
+    'Na2CO3': 'Sodium Carbonate', 'Na2SO4': 'Sodium Sulfate', 'K2O': 'Potassium Oxide', 'K2CO3': 'Potassium Carbonate',
+    'K2SO4': 'Potassium Sulfate', 'CaOH2': 'Calcium Hydroxide', 'MgOH2': 'Magnesium Hydroxide', 'AlOH3': 'Aluminum Hydroxide',
+    'NH3': 'Ammonia', 'CH3NH2': 'Methylamine', 'CH2Cl2': 'Dichloromethane', 'CHCl3': 'Chloroform'
+};
+
+function startGame() {
+    console.log('Start button clicked');
+    playerName = document.getElementById('player-name').value.trim() || 'Player';
+    console.log('Player name set to:', playerName);
+    startScreen.classList.add('hidden');
+    gameContainer.classList.add('active');
+    setTimeout(() => {
+        startScreen.style.display = 'none';
+        console.log('Starting game...');
+        initGrid();
+    }, 500);
 }
 
-.start-screen, .game-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 30px;
-    border-radius: 24px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(12px);
-    max-height: 90vh;
-    overflow: hidden;
-    transition: opacity 0.5s ease;
+function initGrid() {
+    if (!grid) {
+        console.error('Grid element not found!');
+        grid = document.getElementById('grid');
+        if (!grid) return;
+    }
+    console.log('Initializing grid...');
+    grid.innerHTML = '';
+    cells = [];
+    for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        const atom = atomTypes[Math.floor(Math.random() * atomTypes.length)];
+        cell.textContent = atom;
+        cell.classList.add(atom);
+        cell.dataset.index = i.toString();
+        grid.appendChild(cell);
+        cells.push(cell);
+    }
+    console.log('Grid initialized with', cells.length, 'cells');
+    attachEventListeners();
+    checkForMoves();
 }
 
-.start-screen {
-    width: 450px;
-    opacity: 1;
-    background: linear-gradient(135deg, #ff6f61, #ffcc5c);
-    color: #fff;
+function attachEventListeners() {
+    if (!cells.length) {
+        console.error('No cells to attach listeners to!');
+        return;
+    }
+    cells.forEach(cell => {
+        cell.removeEventListener('mousedown', startDrag);
+        cell.removeEventListener('mouseover', dragOver);
+        cell.removeEventListener('mouseup', endDrag);
+        cell.addEventListener('mousedown', startDrag);
+        cell.addEventListener('mouseover', dragOver);
+        cell.addEventListener('mouseup', endDrag);
+    });
+    console.log('Event listeners attached to', cells.length, 'cells');
 }
 
-.start-screen.hidden {
-    opacity: 0;
-    pointer-events: none;
+function startDrag(e) {
+    e.preventDefault();
+    if (!e.target.classList.contains('cell')) return;
+    isDragging = true;
+    selectedCells = [];
+    selectCell(e.target);
+    console.log('Drag started on', e.target.textContent);
 }
 
-.start-screen h1 {
-    font-size: 3em;
-    font-weight: 700;
-    margin-bottom: 20px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+function dragOver(e) {
+    e.preventDefault();
+    if (!isDragging || !e.target.classList.contains('cell')) return;
+    const cell = e.target;
+    if (isAdjacent(cell) && !selectedCells.includes(cell)) {
+        selectCell(cell);
+        console.log('Dragged over', cell.textContent, 'Current chain:', selectedCells.map(c => c.textContent).join(''));
+    }
 }
 
-.start-screen input {
-    width: 80%;
-    padding: 12px;
-    margin: 15px 0;
-    border: none;
-    border-radius: 12px;
-    font-size: 1.3em;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    animation: bounceIn 0.8s ease-out;
+function endDrag(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    console.log('Drag ended, checking chain...');
+    checkChain();
 }
 
-@keyframes bounceIn {
-    0% { transform: scale(0.8); opacity: 0; }
-    60% { transform: scale(1.1); opacity: 1; }
-    100% { transform: scale(1); }
+function selectCell(cell) {
+    if (!selectedCells.includes(cell)) {
+        selectedCells.push(cell);
+        cell.classList.add('selected');
+        console.log('Selected', cell.textContent);
+    }
 }
 
-.start-screen ul {
-    list-style: none;
-    padding: 0;
-    margin: 20px 0;
-    text-align: left;
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
+function isAdjacent(cell) {
+    if (selectedCells.length === 0) return true;
+    const lastCell = selectedCells[selectedCells.length - 1];
+    const lastIndex = parseInt(lastCell.dataset.index);
+    const currentIndex = parseInt(cell.dataset.index);
+    const rowDiff = Math.abs(Math.floor(lastIndex / GRID_SIZE) - Math.floor(currentIndex / GRID_SIZE));
+    const colDiff = Math.abs((lastIndex % GRID_SIZE) - (currentIndex % GRID_SIZE));
+    return (rowDiff <= 1 && colDiff <= 1) && (rowDiff + colDiff > 0);
 }
 
-.start-screen li {
-    font-size: 1.1em;
-    margin: 10px 0;
-    opacity: 0;
-    animation: fadeInUp 0.5s ease forwards;
+function checkChain() {
+    const chain = selectedCells.map(cell => cell.textContent).join('');
+    console.log('Raw chain formed:', chain);
+
+    const atomCount = {};
+    for (let atom of chain) {
+        atomCount[atom] = (atomCount[atom] || 0) + 1;
+    }
+    let normalizedChain = '';
+    for (let atom in atomCount) {
+        normalizedChain += atom + (atomCount[atom] > 1 ? atomCount[atom] : '');
+    }
+    console.log('Normalized chain:', normalizedChain);
+
+    let formattedChain = '';
+    for (let i = 0; i < normalizedChain.length; i++) {
+        if (/\d/.test(normalizedChain[i])) {
+            formattedChain += `<sub>${normalizedChain[i]}</sub>`;
+        } else {
+            formattedChain += normalizedChain[i];
+        }
+    }
+
+    const moleculeName = molecules[chain] || molecules[normalizedChain];
+    if (moleculeName) {
+        console.log('Valid molecule:', moleculeName, 'from', chain);
+        score += selectedCells.length * 10;
+        compoundsCreated += 1;
+        scoreDisplay.textContent = `Score: ${score}`;
+        moleculeDisplay.innerHTML = `${formattedChain} - ${moleculeName}<div class="glitter"></div>`;
+        blastCells();
+        if (score >= 200 && score % 200 === 0) {
+            console.log('Score hit', score, 'refreshing board...');
+            setTimeout(initGrid, 1000);
+        }
+    } else {
+        console.log('Invalid molecule:', chain, 'Normalized:', normalizedChain, 'Resetting...');
+        selectedCells.forEach(cell => cell.classList.remove('selected'));
+        moleculeDisplay.textContent = '';
+    }
+    selectedCells = [];
+    checkForMoves();
 }
 
-.start-screen li:nth-child(1) { animation-delay: 0.2s; }
-.start-screen li:nth-child(2) { animation-delay: 0.4s; }
-.start-screen li:nth-child(3) { animation-delay: 0.6s; }
-
-@keyframes fadeInUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+function blastCells() {
+    console.log('Blasting', selectedCells.length, 'cells');
+    selectedCells.forEach(cell => {
+        cell.classList.add('blast');
+        cell.addEventListener('animationend', () => {
+            const atom = atomTypes[Math.floor(Math.random() * atomTypes.length)];
+            cell.textContent = atom;
+            cell.className = `cell ${atom}`;
+            console.log('Replaced with', atom);
+        }, { once: true });
+    });
 }
 
-.start-screen button {
-    padding: 12px 24px;
-    background: #007aff;
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    font-size: 1.3em;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    animation: pulse 1.5s infinite;
+function checkForMoves() {
+    let hasMoves = false;
+    for (let i = 0; i < cells.length; i++) {
+        const cell = cells[i];
+        const row = Math.floor(i / GRID_SIZE);
+        const col = i % GRID_SIZE;
+        const neighbors = getNeighbors(row, col);
+        for (let neighbor of neighbors) {
+            const testChain = [cell.textContent, neighbor.textContent].join('');
+            if (molecules[testChain]) {
+                hasMoves = true;
+                break;
+            }
+        }
+        if (hasMoves) break;
+    }
+    if (!hasMoves) {
+        console.log('No moves left, reshuffling...');
+        setTimeout(initGrid, 500);
+    }
 }
 
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+function getNeighbors(row, col) {
+    const neighbors = [];
+    const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+    for (let [dr, dc] of directions) {
+        const newRow = row + dr;
+        const newCol = col + dc;
+        if (newRow >= 0 && newRow < GRID_SIZE && newCol >= 0 && newCol < GRID_SIZE) {
+            neighbors.push(cells[newRow * GRID_SIZE + newCol]);
+        }
+    }
+    return neighbors;
 }
 
-.start-screen button:hover {
-    background: #005bb5;
-    animation: none;
+function shareScore() {
+    const url = "https://chemcrushbyrajat.example.com"; // Placeholder URL
+    const text = `${playerName} created ${compoundsCreated} compounds, score: ${score}. Play at: ${url}`;
+    if (navigator.share) {
+        navigator.share({ text }).catch(err => console.error('Share failed:', err));
+    } else {
+        navigator.clipboard.writeText(text).then(() => alert('Score copied to clipboard!'));
+    }
 }
 
-.game-container {
-    opacity: 0;
-    pointer-events: none;
-    padding-bottom: 60px;
-}
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, setting up start button...');
+    if (!startButton) {
+        console.error('Start button not found!');
+        return;
+    }
+    startButton.addEventListener('click', startGame);
+    if (!shareButton) {
+        console.error('Share button not found!');
+    } else {
+        shareButton.addEventListener('click', shareScore);
+    }
+});
 
-.game-container.active {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-h1 {
-    color: #000;
-    font-size: 2.5em;
-    font-weight: 600;
-    margin: 10px 0;
-    letter-spacing: -0.5px;
-}
-
-#score {
-    color: #333;
-    font-size: 1.5em;
-    font-weight: 500;
-    margin: 10px 0;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(9, 40px);
-    gap: 4px;
-    background: rgba(240, 240, 240, 0.9);
-    padding: 12px;
-    border-radius: 16px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.cell {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.1em;
-    color: #fff;
-    cursor: pointer;
-    transition: transform 0.2s ease, opacity 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 0 6px rgba(255, 255, 255, 0.6);
-}
-
-.cell:hover {
-    transform: scale(1.05);
-}
-
-.selected {
-    opacity: 0.85;
-    border: 2px solid #fff;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
-}
-
-.H { background: #ff3b30; }
-.O { background: #ff2d55; }
-.N { background: #007aff; }
-.F { background: #34c759; }
-.Cl { background: #ffcc00; }
-.Br { background: #ff9500; }
-.I { background: #5856d6; }
-.C { background: #00c7be; }
-.S { background: #ff9500; }
-.P { background: #af52de; }
-.Na { background: #5ac8fa; }
-.K { background: #ff3b30; }
-.Ca { background: #4cd964; }
-.Mg { background: #32ade6; }
-.Al { background: #8e8e93; }
-.Si { background: #ffcc00; }
-
-.blast {
-    animation: blast 0.4s ease-out forwards;
-}
-
-@keyframes blast {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.2); opacity: 0.7; }
-    100% { transform: scale(0); opacity: 0; }
-}
-
-#molecule-display {
-    color: #000;
-    font-size: 1.8em;
-    font-weight: 500;
-    margin: 15px 0;
-    min-height: 40px;
-    position: relative;
-}
-
-.glitter {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    background: radial-gradient(circle, rgba(255, 215, 0, 0.5), transparent);
-    animation: glitter 1s infinite;
-}
-
-@keyframes glitter {
-    0% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.5); opacity: 0.3; }
-    100% { transform: scale(1); opacity: 0.8; }
-}
-
-.footer {
-    position: absolute;
-    bottom: 10px;
-    width: 100%;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-}
-
-#share-score {
-    padding: 8px 16px;
-    background: #007aff;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-size: 1em;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-#share-score:hover {
-    background: #005bb5;
-}
-
-#credits {
-    color: #666;
-    font-size: 1em;
-}
+setTimeout(() => {
+    if (!cells.length && gameContainer.classList.contains('active')) {
+        console.log('Failsafe: Grid not loaded, forcing init...');
+        initGrid();
+    }
+}, 2000);
