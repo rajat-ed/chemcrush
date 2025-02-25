@@ -84,14 +84,12 @@ function attachEventListeners() {
         return;
     }
     cells.forEach(cell => {
-        // Mouse events for desktop
         cell.removeEventListener('mousedown', startDrag);
         cell.removeEventListener('mouseover', dragOver);
         cell.removeEventListener('mouseup', endDrag);
         cell.addEventListener('mousedown', startDrag);
         cell.addEventListener('mouseover', dragOver);
         cell.addEventListener('mouseup', endDrag);
-        // Touch events for mobile
         cell.removeEventListener('touchstart', startDragTouch);
         cell.removeEventListener('touchmove', dragOverTouch);
         cell.removeEventListener('touchend', endDragTouch);
@@ -102,7 +100,6 @@ function attachEventListeners() {
     console.log('Event listeners attached to', cells.length, 'cells');
 }
 
-// Mouse Event Handlers
 function startDrag(e) {
     e.preventDefault();
     if (!e.target.classList.contains('cell')) return;
@@ -129,7 +126,6 @@ function endDrag(e) {
     checkChain();
 }
 
-// Touch Event Handlers
 function startDragTouch(e) {
     e.preventDefault();
     const touch = e.touches[0];
