@@ -84,16 +84,25 @@ function attachEventListeners() {
         return;
     }
     cells.forEach(cell => {
+        // Mouse events for desktop
         cell.removeEventListener('mousedown', startDrag);
         cell.removeEventListener('mouseover', dragOver);
         cell.removeEventListener('mouseup', endDrag);
         cell.addEventListener('mousedown', startDrag);
         cell.addEventListener('mouseover', dragOver);
         cell.addEventListener('mouseup', endDrag);
+        // Touch events for mobile
+        cell.removeEventListener('touchstart', startDragTouch);
+        cell.removeEventListener('touchmove', dragOverTouch);
+        cell.removeEventListener('touchend', endDragTouch);
+        cell.addEventListener('touchstart', startDragTouch, { passive: false });
+        cell.addEventListener('touchmove', dragOverTouch, { passive: false });
+        cell.addEventListener('touchend', endDragTouch);
     });
     console.log('Event listeners attached to', cells.length, 'cells');
 }
 
+// Mouse Event Handlers
 function startDrag(e) {
     e.preventDefault();
     if (!e.target.classList.contains('cell')) return;
@@ -117,6 +126,37 @@ function endDrag(e) {
     if (!isDragging) return;
     isDragging = false;
     console.log('Drag ended, checking chain...');
+    checkChain();
+}
+
+// Touch Event Handlers
+function startDragTouch(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const cell = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!cell || !cell.classList.contains('cell')) return;
+    isDragging = true;
+    selectedCells = [];
+    selectCell(cell);
+    console.log('Touch drag started on', cell.textContent);
+}
+
+function dragOverTouch(e) {
+    e.preventDefault();
+    if (!isDragging) return;
+    const touch = e.touches[0];
+    const cell = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!cell || !cell.classList.contains('cell')) return;
+    if (isAdjacent(cell) && !selectedCells.includes(cell)) {
+        selectCell(cell);
+        console.log('Touch dragged over', cell.textContent, 'Current chain:', selectedCells.map(c => c.textContent).join(''));
+    }
+}
+
+function endDragTouch(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    console.log('Touch drag ended, checking chain...');
     checkChain();
 }
 
