@@ -14,10 +14,10 @@ html, body {
     top: 0;
     left: 0;
     width: 100vw;
-    max-height: 100vh; /* Cap height to viewport */
+    max-height: 98vh; /* Slightly less than 100vh for mobile UI */
     text-align: center;
     background: rgba(255, 255, 255, 0.85);
-    padding: 0.5vh 0.5vw; /* Further reduced padding */
+    padding: 0.2vh 0.2vw; /* Minimal padding for mobile */
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -41,20 +41,20 @@ html, body {
 }
 
 .start-screen h1 {
-    font-size: clamp(1.2rem, 4vw, 2rem); /* Smaller clamp range */
+    font-size: clamp(1rem, 3.5vw, 1.8rem); /* Adjusted for mobile */
     font-weight: 700;
-    margin: 0.5vh 0; /* Tightened margin */
+    margin: 0.2vh 0; /* Minimal margin */
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     color: #fff;
 }
 
 .start-screen input {
     width: 80%;
-    padding: 0.8vh; /* Reduced padding */
-    margin: 0.5vh 0; /* Tightened margin */
+    padding: 0.5vh; /* Tighter padding */
+    margin: 0.2vh 0; /* Minimal margin */
     border: none;
     border-radius: 10px;
-    font-size: clamp(0.7rem, 2vw, 0.9rem); /* Smaller clamp range */
+    font-size: clamp(0.6rem, 1.8vw, 0.8rem); /* Smaller for mobile */
     background: rgba(255, 255, 255, 0.9);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     animation: bounceIn 0.8s ease-out;
@@ -69,15 +69,15 @@ html, body {
 .start-screen ul {
     list-style: none;
     padding: 0;
-    margin: 0.5vh 0; /* Tightened margin */
+    margin: 0.2vh 0; /* Minimal margin */
     text-align: left;
     width: 80%;
-    flex-grow: 0.5; /* Reduced flex-grow to compress space */
+    flex-grow: 0.3; /* Reduced flex-grow for mobile */
 }
 
 .start-screen li {
-    font-size: clamp(0.6rem, 1.8vw, 0.8rem); /* Smaller clamp range */
-    margin: 0.3vh 0; /* Tightened margin */
+    font-size: clamp(0.5rem, 1.5vw, 0.7rem); /* Smaller for mobile */
+    margin: 0.2vh 0; /* Minimal margin */
     opacity: 0;
     animation: fadeInUp 0.5s ease forwards;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
@@ -93,30 +93,30 @@ html, body {
 }
 
 .start-screen button {
-    padding: 0.8vh 1.5vw; /* Smaller padding */
+    padding: 0.5vh 1vw; /* Tighter padding */
     background: linear-gradient(135deg, #ff6f00, #ffca28);
     color: #fff;
     border: none;
-    border-radius: 25px;
-    font-size: clamp(0.7rem, 2vw, 0.9rem); /* Smaller clamp range */
+    border-radius: 20px; /* Slightly less rounded for compactness */
+    font-size: clamp(0.6rem, 1.8vw, 0.8rem); /* Smaller for mobile */
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.5);
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 0.5vh; /* Reduced bottom margin */
+    letter-spacing: 0.5px; /* Reduced spacing */
+    margin-bottom: 0.5vh; /* Minimal bottom margin */
 }
 
 .start-screen button:hover {
     background: linear-gradient(135deg, #ffca28, #ff6f00);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 1px 3px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25), inset 0 1px 3px rgba(255, 255, 255, 0.5);
 }
 
 .start-screen button:active {
     transform: translateY(1px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .game-container {
@@ -130,31 +130,31 @@ html, body {
 }
 
 h1 {
-    font-size: clamp(1rem, 3.5vw, 1.8rem);
+    font-size: clamp(0.8rem, 3vw, 1.5rem); /* Smaller for mobile */
     font-weight: 700;
-    margin: 0.5vh 0; /* Tightened margin */
+    margin: 0.2vh 0; /* Minimal margin */
     color: #ff5722;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 #score {
-    font-size: clamp(0.8rem, 2.5vw, 1rem);
+    font-size: clamp(0.7rem, 2vw, 0.9rem); /* Smaller for mobile */
     font-weight: 700;
-    margin: 0.5vh 0; /* Tightened margin */
+    margin: 0.2vh 0; /* Minimal margin */
     color: #ff9800;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(9, minmax(25px, 40px));
-    gap: 0.5vh;
+    grid-template-columns: repeat(9, minmax(20px, 35px)); /* Slightly smaller cells */
+    gap: 0.3vh; /* Reduced gap */
     background: rgba(255, 255, 255, 0.6);
-    padding: 1vh;
+    padding: 0.5vh; /* Reduced padding */
     border-radius: 15px;
     border: 2px solid #ffeb3b;
     box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.2);
-    width: calc(9 * minmax(25px, 40px) + 8 * 0.5vh + 2 * 1vh);
+    width: calc(9 * minmax(20px, 35px) + 8 * 0.3vh + 2 * 0.5vh);
     max-width: 90vw;
     margin: 0 auto;
     position: relative;
@@ -167,7 +167,7 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+    font-size: clamp(0.6rem, 2vw, 1rem); /* Smaller for mobile */
     font-weight: bold;
     color: #fff;
     cursor: pointer;
@@ -225,10 +225,10 @@ h1 {
 
 #molecule-display {
     color: #ff5722;
-    font-size: clamp(0.8rem, 2.5vw, 1.2rem); /* Smaller clamp range */
+    font-size: clamp(0.7rem, 2vw, 1rem); /* Smaller for mobile */
     font-weight: 700;
-    margin: 0.5vh 0; /* Tightened margin */
-    min-height: 4vh; /* Reduced min-height */
+    margin: 0.2vh 0; /* Minimal margin */
+    min-height: 3vh; /* Reduced min-height */
     position: relative;
     flex-grow: 1;
     display: flex;
@@ -267,39 +267,39 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 1vw; /* Reduced gap */
-    padding: 0.5vh 0; /* Reduced padding */
-    margin-bottom: 0.5vh; /* Reduced bottom margin */
+    gap: 0.5vw; /* Reduced gap */
+    padding: 0.2vh 0; /* Minimal padding */
+    margin-bottom: 0.5vh; /* Minimal bottom margin */
 }
 
 #share-score {
-    padding: 0.8vh 1.5vw;
+    padding: 0.5vh 1vw;
     background: linear-gradient(135deg, #ff6f00, #ffca28);
     color: #fff;
     border: none;
-    border-radius: 25px;
-    font-size: clamp(0.7rem, 2vw, 0.9rem);
+    border-radius: 20px;
+    font-size: clamp(0.6rem, 1.8vw, 0.8rem);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.5);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 #share-score:hover {
     background: linear-gradient(135deg, #ffca28, #ff6f00);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 1px 3px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25), inset 0 1px 3px rgba(255, 255, 255, 0.5);
 }
 
 #share-score:active {
     transform: translateY(1px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 #credits {
     color: #4a2557;
-    font-size: clamp(0.6rem, 1.8vw, 0.8rem); /* Smaller clamp range */
+    font-size: clamp(0.5rem, 1.5vw, 0.7rem); /* Smaller for mobile */
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
 }
