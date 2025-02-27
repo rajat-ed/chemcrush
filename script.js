@@ -41,6 +41,17 @@ const molecules = {
     'NH3': 'Ammonia', 'CH3NH2': 'Methylamine', 'CH2Cl2': 'Dichloromethane', 'CHCl3': 'Chloroform'
 };
 
+// Convert molecules to array for randomization
+const moleculeList = Object.entries(molecules).map(([formula, name]) => ({ formula, name }));
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
 function startGame() {
     console.log('Start button clicked');
     playerName = document.getElementById('player-name').value.trim() || 'Player';
@@ -63,19 +74,87 @@ function initGrid() {
     console.log('Initializing grid...');
     grid.innerHTML = '';
     cells = [];
+
+    // Full randomization across all molecules
+    const shuffledMolecules = shuffleArray([...moleculeList]);
+    const atomPool = [];
+    shuffledMolecules.forEach(m => {
+        for (let char of m.formula) {
+            if (atomTypes.includes(char)) {
+                // Add each atom multiple times to increase variety
+                atomPool.push(char);
+                atomPool.push(char);
+                atomPool.push(char);
+            }
+        }
+    });
+    shuffleArray(atomPool); // Extra shuffle for randomness
+
     for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
         const cell = document.createElement('div');
         cell.classList.add('cell');
-        const atom = atomTypes[Math.floor(Math.random() * atomTypes.length)];
+        const atom = atomPool[i % atomPool.length]; // Cycle through pool for variety
         cell.textContent = atom;
         cell.classList.add(atom);
         cell.dataset.index = i.toString();
+        cell.classList.add('fall');
         grid.appendChild(cell);
         cells.push(cell);
     }
+
     console.log('Grid initialized with', cells.length, 'cells');
     attachEventListeners();
     checkForMoves();
+}
+
+function getColumn(col) {
+    return cells.filter((_, index) => index % GRID_SIZE === col);
+}
+
+function refillGrid() {
+    console.log('Refilling grid...');
+    const blastedCols = new Set();
+    cells.forEach(cell => {
+        if (cell.classList.contains('blast')) {
+            const col = parseInt(cell.dataset.index) % GRID_SIZE;
+            blastedCols.add(col);
+        }
+    });
+
+    blastedCols.forEach(col => {
+        const column = getColumn(col);
+        const newColumn = Array(GRID_SIZE).fill(null);
+        let writeIdx = GRID_SIZE - 1;
+
+        // Move non-blasted cells down
+        for (let i = GRID_SIZE - 1; i >= 0; i--) {
+            if (!column[i].classList.contains('blast') && column[i].textContent) {
+                newColumn[writeIdx] = column[i].textContent;
+                writeIdx--;
+            }
+        }
+
+        // Fill empty slots with maximum variety
+        const shuffledMolecules = shuffleArray([...moleculeList]);
+        let atomIdx = Math.floor(Math.random() * shuffledMolecules.length); // Random starting point
+        for (let i = 0; i <= writeIdx; i++) {
+            const molecule = shuffledMolecules[atomIdx % shuffledMolecules.length];
+            const atom = molecule.formula[Math.floor(Math.random() * molecule.formula.length)]; // Random atom from molecule
+            newColumn[i] = atomTypes.includes(atom) ? atom : atomTypes[Math.floor(Math.random() * atomTypes.length)];
+            atomIdx++;
+        }
+
+        // Apply new column with fall animation
+        for (let i = 0; i < GRID_SIZE; i++) {
+            if (newColumn[i]) {
+                column[i].textContent = newColumn[i];
+                column[i].className = `cell ${newColumn[i]} fall`;
+            } else {
+                column[i].textContent = '';
+                column[i].className = 'cell';
+            }
+        }
+    });
 }
 
 function attachEventListeners() {
@@ -188,26 +267,39 @@ function checkChain() {
     }
     console.log('Normalized chain:', normalizedChain);
 
-    let formattedChain = '';
-    for (let i = 0; i < normalizedChain.length; i++) {
-        if (/\d/.test(normalizedChain[i])) {
-            formattedChain += `<sub>${normalizedChain[i]}</sub>`;
-        } else {
-            formattedChain += normalizedChain[i];
-        }
-    }
-
     const moleculeName = molecules[chain] || molecules[normalizedChain];
     if (moleculeName) {
         console.log('Valid molecule:', moleculeName, 'from', chain);
         score += selectedCells.length * 10;
         compoundsCreated += 1;
         scoreDisplay.textContent = `Score: ${score}`;
-        moleculeDisplay.innerHTML = `${formattedChain} - ${moleculeName}<div class="glitter"></div>`;
+
+        // Create formatted molecule display with proper subscripts
+        const formattedSpan = document.createElement('span');
+        for (let i = 0; i < normalizedChain.length; i++) {
+            if (/\d/.test(normalizedChain[i])) {
+                const sub = document.createElement('sub');
+                sub.textContent = normalizedChain[i];
+                formattedSpan.appendChild(sub);
+            } else {
+                formattedSpan.appendChild(document.createTextNode(normalizedChain[i]));
+            }
+        }
+        moleculeDisplay.innerHTML = '';
+        moleculeDisplay.appendChild(formattedSpan);
+        moleculeDisplay.appendChild(document.createTextNode(' - ' + moleculeName));
+        const glitter = document.createElement('div');
+        glitter.className = 'glitter';
+        moleculeDisplay.appendChild(glitter);
+
         blastCells();
         if (score >= 200 && score % 200 === 0) {
             console.log('Score hit', score, 'refreshing board...');
-            setTimeout(initGrid, 1000);
+            setTimeout(() => {
+                grid.innerHTML = '';
+                cells = [];
+                initGrid();
+            }, 1000);
         }
     } else {
         console.log('Invalid molecule:', chain, 'Normalized:', normalizedChain, 'Resetting...');
@@ -223,10 +315,10 @@ function blastCells() {
     selectedCells.forEach(cell => {
         cell.classList.add('blast');
         cell.addEventListener('animationend', () => {
-            const atom = atomTypes[Math.floor(Math.random() * atomTypes.length)];
-            cell.textContent = atom;
-            cell.className = `cell ${atom}`;
-            console.log('Replaced with', atom);
+            cell.textContent = '';
+            setTimeout(() => {
+                refillGrid();
+            }, 100);
         }, { once: true });
     });
 }
@@ -249,7 +341,11 @@ function checkForMoves() {
     }
     if (!hasMoves) {
         console.log('No moves left, reshuffling...');
-        setTimeout(initGrid, 500);
+        setTimeout(() => {
+            grid.innerHTML = '';
+            cells = [];
+            initGrid();
+        }, 500);
     }
 }
 
@@ -267,8 +363,8 @@ function getNeighbors(row, col) {
 }
 
 function shareScore() {
-    const url = "https://chemcrushbyrajat.example.com"; // Placeholder URL
-    const text = `${playerName} created ${compoundsCreated} compounds, score: ${score}. Play at: ${url}`;
+    const url = "https://rajat-ed.github.io/chemcrush/";
+    const text = `⚛️${playerName} created ${compoundsCreated} compounds🧪, 🏆score: ${score}. 🎮Play at: ${url}`;
     if (navigator.share) {
         navigator.share({ text }).catch(err => console.error('Share failed:', err));
     } else {
