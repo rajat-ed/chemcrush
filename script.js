@@ -38,7 +38,7 @@ const molecules = {
     'SF2': 'Sulfur Difluoride', 'SF4': 'Sulfur Tetrafluoride', 'SF6': 'Sulfur Hexafluoride', 'Na2O': 'Sodium Oxide',
     'Na2CO3': 'Sodium Carbonate', 'Na2SO4': 'Sodium Sulfate', 'K2O': 'Potassium Oxide', 'K2CO3': 'Potassium Carbonate',
     'K2SO4': 'Potassium Sulfate', 'CaOH2': 'Calcium Hydroxide', 'MgOH2': 'Magnesium Hydroxide', 'AlOH3': 'Aluminum Hydroxide',
-    'NH3': 'Ammonia', 'CH3NH2': 'Methylamine', 'CH2Cl2': 'Dichloromethane', 'CHCl3': 'Chloroform'
+    'NH3': 'Ammonia', 'CH3NH2': 'Methylamine', 'CH2Cl2': 'Dichloromethane', 'CHCl3': 'Chloroform', 'HCN': 'Hydrogen cyanide'
 };
 
 // Convert molecules to array for randomization
