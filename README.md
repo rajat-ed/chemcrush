@@ -17,10 +17,7 @@ ChemCrush is a chemistry-themed mobile game inspired by *Candy Crush*. Swipe ato
 4. Score points and share your high score with "Share Score"!
 
 ## Molecules in the game (so far)
- H₂O - Water
-
-Gases
-
+    H₂O - Water
     H₂ - Hydrogen Gas
     O₂ - Oxygen Gas
     N₂ - Nitrogen Gas
@@ -36,9 +33,6 @@ Gases
     NO₂ - Nitrogen Dioxide
     N₂O - Nitrous Oxide
     OCS - Carbonyl Sulfide
-
-Acids
-
     HCl - Hydrochloric Acid
     H₂SO₄ - Sulfuric Acid
     HNO₃ - Nitric Acid
@@ -53,9 +47,6 @@ Acids
     H₂SO₃ - Sulfurous Acid
     HCOOH - Formic Acid
     CH₃COOH - Acetic Acid
-
-Hydrocarbons
-
     CH₄ - Methane
     C₂H₆ - Ethane
     C₂H₄ - Ethene
@@ -69,16 +60,7 @@ Hydrocarbons
     C₅H₁₂ - Pentane
     C₅H₁₀ - Pentene
     C₅H₈ - Pentyne
-
-Bases
-
     NaOH - Sodium Hydroxide
-    Ca(OH)₂ - Calcium Hydroxide
-    Mg(OH)₂ - Magnesium Hydroxide
-    Al(OH)₃ - Aluminum Hydroxide
-
-Salts & Other Compounds
-
     NaCl - Sodium Chloride
     KCl - Potassium Chloride
     CaCO₃ - Calcium Carbonate
@@ -116,9 +98,6 @@ Salts & Other Compounds
     K₂CO₃ - Potassium Carbonate
     K₂SO₄ - Potassium Sulfate
     CaO - Calcium Oxide
-
-Organic Compounds
-
     CH₃OH - Methanol
     C₂H₅OH - Ethanol
     CH₃Cl - Chloromethane
