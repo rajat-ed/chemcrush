@@ -14,10 +14,10 @@ html, body {
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    max-height: 100vh; /* Cap height to viewport */
     text-align: center;
     background: rgba(255, 255, 255, 0.85);
-    padding: 1vh 1vw; /* Reduced padding to fit content */
+    padding: 0.5vh 0.5vw; /* Further reduced padding */
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -26,7 +26,7 @@ html, body {
     transition: opacity 0.5s ease;
     backdrop-filter: blur(8px);
     border-radius: 15px;
-    overflow: hidden; /* Prevent internal overflow */
+    overflow: hidden;
 }
 
 .start-screen {
@@ -41,20 +41,20 @@ html, body {
 }
 
 .start-screen h1 {
-    font-size: clamp(1.5rem, 5vw, 2.5rem); /* Slightly smaller for space */
+    font-size: clamp(1.2rem, 4vw, 2rem); /* Smaller clamp range */
     font-weight: 700;
-    margin: 1vh 0; /* Reduced margin */
+    margin: 0.5vh 0; /* Tightened margin */
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     color: #fff;
 }
 
 .start-screen input {
     width: 80%;
-    padding: 1vh; /* Reduced padding */
-    margin: 1vh 0;
+    padding: 0.8vh; /* Reduced padding */
+    margin: 0.5vh 0; /* Tightened margin */
     border: none;
     border-radius: 10px;
-    font-size: clamp(0.8rem, 2.5vw, 1rem); /* Slightly smaller */
+    font-size: clamp(0.7rem, 2vw, 0.9rem); /* Smaller clamp range */
     background: rgba(255, 255, 255, 0.9);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     animation: bounceIn 0.8s ease-out;
@@ -69,15 +69,15 @@ html, body {
 .start-screen ul {
     list-style: none;
     padding: 0;
-    margin: 1vh 0;
+    margin: 0.5vh 0; /* Tightened margin */
     text-align: left;
     width: 80%;
-    flex-grow: 1; /* Still takes available space */
+    flex-grow: 0.5; /* Reduced flex-grow to compress space */
 }
 
 .start-screen li {
-    font-size: clamp(0.7rem, 2vw, 0.9rem); /* Slightly smaller */
-    margin: 0.5vh 0; /* Reduced margin */
+    font-size: clamp(0.6rem, 1.8vw, 0.8rem); /* Smaller clamp range */
+    margin: 0.3vh 0; /* Tightened margin */
     opacity: 0;
     animation: fadeInUp 0.5s ease forwards;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
@@ -93,19 +93,19 @@ html, body {
 }
 
 .start-screen button {
-    padding: 1vh 2vw; /* Reduced padding */
+    padding: 0.8vh 1.5vw; /* Smaller padding */
     background: linear-gradient(135deg, #ff6f00, #ffca28);
     color: #fff;
     border: none;
     border-radius: 25px;
-    font-size: clamp(0.8rem, 2.5vw, 1rem); /* Slightly smaller */
+    font-size: clamp(0.7rem, 2vw, 0.9rem); /* Smaller clamp range */
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.5);
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 1vh; /* Ensure space at bottom */
+    margin-bottom: 0.5vh; /* Reduced bottom margin */
 }
 
 .start-screen button:hover {
@@ -130,17 +130,17 @@ html, body {
 }
 
 h1 {
-    font-size: clamp(1rem, 3.5vw, 1.8rem); /* Slightly smaller */
+    font-size: clamp(1rem, 3.5vw, 1.8rem);
     font-weight: 700;
-    margin: 1vh 0;
+    margin: 0.5vh 0; /* Tightened margin */
     color: #ff5722;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 #score {
-    font-size: clamp(0.8rem, 2.5vw, 1rem); /* Slightly smaller */
+    font-size: clamp(0.8rem, 2.5vw, 1rem);
     font-weight: 700;
-    margin: 1vh 0;
+    margin: 0.5vh 0; /* Tightened margin */
     color: #ff9800;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
@@ -225,10 +225,10 @@ h1 {
 
 #molecule-display {
     color: #ff5722;
-    font-size: clamp(0.9rem, 3vw, 1.5rem);
+    font-size: clamp(0.8rem, 2.5vw, 1.2rem); /* Smaller clamp range */
     font-weight: 700;
-    margin: 1vh 0;
-    min-height: 5vh;
+    margin: 0.5vh 0; /* Tightened margin */
+    min-height: 4vh; /* Reduced min-height */
     position: relative;
     flex-grow: 1;
     display: flex;
@@ -267,11 +267,39 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 2vw;
-    padding: 1vh 0; /* Reduced padding */
-    margin-bottom: 1vh; /* Ensure space at bottom */
+    gap: 1vw; /* Reduced gap */
+    padding: 0.5vh 0; /* Reduced padding */
+    margin-bottom: 0.5vh; /* Reduced bottom margin */
 }
 
 #share-score {
-    padding: 1vh 2vw;
-    background: linear-gradient(135deg, #ff6
+    padding: 0.8vh 1.5vw;
+    background: linear-gradient(135deg, #ff6f00, #ffca28);
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    font-size: clamp(0.7rem, 2vw, 0.9rem);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#share-score:hover {
+    background: linear-gradient(135deg, #ffca28, #ff6f00);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 1px 3px rgba(255, 255, 255, 0.5);
+}
+
+#share-score:active {
+    transform: translateY(1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+#credits {
+    color: #4a2557;
+    font-size: clamp(0.6rem, 1.8vw, 0.8rem); /* Smaller clamp range */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+}
